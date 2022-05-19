@@ -1,3 +1,7 @@
+#ifndef PUBLIC_H
+#define PUBLIC_H
+
+
 #include <stdio.h>
 #include <sys/types.h>
 #include <netinet/ether.h>
@@ -19,3 +23,5 @@ struct dump_str
     int portnumber;
     int ethnumber;
 };
+
+#endif
