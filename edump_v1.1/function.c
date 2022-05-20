@@ -105,26 +105,21 @@ int edump_protocol_bag(const char *protocol, const unsigned char *msg)
         return 0;
 }
 
-int edump_output_file(const char *filename, const unsigned char *msg, int msg_len) //测试保存报文到文件中
+int edump_output_file(const char *filename, const unsigned char *msg, int msg_len, pcap_dumper_t *pcap_file) //测试保存报文到文件中
 {
-    pcap_t *p;
-    p = pcap_open_dead(LINKTYPE_ETHERNET, 65535);
- 
-    pcap_dumper_t *pcap_file;
-    pcap_file = pcap_dump_open(p, filename);
- 
-    /* init time */
-    clock_t time;
- 
-    /* 写包 */
-    struct pcap_pkthdr pkt_header;
-    time = clock();
-    pkt_header.ts.tv_sec = time / CLOCKS_PER_SEC;
-    pkt_header.ts.tv_usec = time % CLOCKS_PER_SEC;
-    pkt_header.caplen = msg_len;
-    pkt_header.len = msg_len;
-    pcap_dump((u_char*)pcap_file, &pkt_header, msg);
 
+        /* 初始化时间 */
+        clock_t time;
+
+        /* 写包 */
+        struct pcap_pkthdr pkt_header;
+        time = clock();
+        pkt_header.ts.tv_sec = time / CLOCKS_PER_SEC;
+        pkt_header.ts.tv_usec = time % CLOCKS_PER_SEC;
+        pkt_header.caplen = msg_len;
+        pkt_header.len = msg_len;
+        pcap_dump((u_char*)pcap_file, &pkt_header, msg);
+  
         return 0;
 }
 

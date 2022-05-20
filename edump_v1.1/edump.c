@@ -4,10 +4,22 @@
 int main(int argc, char *argv[])
 {
 
-	int sockfd, i, tag1, tag2;
+	int sockfd, i, tag1, tag2 = 0;
+	pcap_t *p;
+	pcap_dumper_t *pcap_file;
 
 	/* 此字符数组用来保存数据报 */
 	unsigned char msg[1600] = {0};
+
+	/* 先扫描一遍，如果有输出文件选项，则准备好文件指针准备输出文件 */
+	for (i = 0; i <argc; i++) {
+		if (strcmp(argv[i], "-w") == 0) {
+			tag2 = i + 1;
+			p = pcap_open_dead(LINKTYPE_ETHERNET, 65535);
+			pcap_file = pcap_dump_open(p, argv[tag2]);
+			break;
+		}
+	}
 
 	/* SOCK_RAW提供原始网络协议访问 */
     if ((sockfd = socket(AF_PACKET, SOCK_RAW, ntohs(ETH_P_ALL))) < 0) {
@@ -30,8 +42,6 @@ int main(int argc, char *argv[])
 
 		/* tag1用来记录是否匹配成功 */
         tag1 = 0;
-		/* tag2用来记录是否输出到文件中 */
-		tag2 = 0;
 
 	    for (i = 0; i <argc; i++) {
 			/* 判断选项来调用函数过滤包 */
@@ -66,8 +76,6 @@ int main(int argc, char *argv[])
 					tag1 = 0;
 					break;
 				}
-			} else if (strcmp(argv[i], "-w") == 0) {
-				tag2 = i + 1;
 			}
 		}
 
@@ -83,8 +91,8 @@ int main(int argc, char *argv[])
 				tolength = tolength - 82;
 			}
 			
-			edump_output_file(argv[tag2], msg, tolength);
-			break;
+			edump_output_file(argv[tag2], msg, tolength, (pcap_dumper_t *)pcap_file);
+
 		} else if (tag1 && !tag2) {
 			edump_output_frame(msg);
 		}
